@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import genpareto
 
 np.random.seed(2112)
-sample = genpareto(c = 1.5, loc = 1.5, scale = 1.5)
+sample = genpareto.rvs(c = 0.75, size = 300)
 sample.sort()
 
 plt.hist(sample, bins = 40)

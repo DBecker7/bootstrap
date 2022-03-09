@@ -1,2 +1,4 @@
-# bootstrap
-Repo for a teaching talk on the bootstrap method
+# The Bootstrap Method
+
+Teaching materials for the bootstrap method.
+
