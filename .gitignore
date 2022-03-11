@@ -3,3 +3,6 @@
 
 # Quarto stuff
 *.html
+
+# Aux data (see slides.qmd)
+voc.csv
