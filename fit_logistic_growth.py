@@ -35,7 +35,7 @@ yhat = logistic_growth(xseq, popt[0], popt[1])
 #plt.show()
 
 xy = pd.DataFrame({"x": x, "y": y})
-xy.to_csv("samples.csv", index = False)
+xy.to_csv("data.csv", index = False)
 
 rands1 = np.random.randint(0, 40, 40)
 print(xy.iloc[rands1])
