@@ -1,2 +1,5 @@
 # ipynb stuff
 .ipynb_checkpoints*
+
+# Quarto stuff
+*.html

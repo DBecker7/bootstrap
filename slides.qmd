@@ -1,0 +1,59 @@
+---
+title: "Bootstrap Method"
+author: "Devan Becker"
+format: 
+  revealjs:
+    theme: serif
+    slide-number: true
+    css: reveal.css
+---
+
+# Recap (Zoom Poll)
+
+What is the standard error?
+
+1. The sd of the distribution of all sample means
+2. The sd of the observed sample mean
+3. The sd of a sample
+
+
+# Recap (Zoom Poll)
+
+Which of the following is the standard error?
+
+1. $\sigma/\sqrt{n}$
+2. $s/\sqrt{n}$
+3. $s/\sqrt{n-1}$
+3. None of the above
+
+. . .
+
+:::{.callout-note}
+It all depends on *what assumptions we make*.
+:::
+
+# Invasion of Omicron
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Only need to run once to download the data
+#voc = pd.read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19-epiSummary-variants.csv")
+#voc.columns = ["Grouping", "Identifier", "Lineage", "Proportion", "Collection_Week"]
+#voc.to_csv("voc.csv")
+voc = pd.read_csv("voc.csv")
+
+any_omicron = voc[voc.Identifier == "Omicron"]
+any_omicron = any_omicron.loc[any_omicron.Collection_Week >= "2021-10"]
+any_omicron['Collection_Week'] = pd.to_datetime(any_omicron['Collection_Week'], infer_datetime_format=True)
+all_omicron = any_omicron.groupby("Collection_Week", as_index = False).Proportion.sum()
+
+all_omicron.plot("Collection_Week", "Proportion", kind = "scatter")
+plt.ylabel("Proportion of Cases of Omicron")
+plt.xlabel("Collection Week")
+plt.show()
+```
+
+Source: https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html

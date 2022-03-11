@@ -1,0 +1,10 @@
+section {
+    flex-direction: column;
+    top: unset !important; 
+    height: 100vh;
+}
+
+section p {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+}
