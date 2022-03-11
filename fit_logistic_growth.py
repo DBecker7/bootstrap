@@ -12,6 +12,7 @@ def logistic_growth(x, r, k):
     return y
 
 y = logistic_growth(x, 0.4, 15)
+# Manually add errors to emulate my data (NO distribution)
 y = y + np.array([
      0.001,   0.003, -0.002, -0.004, 0.003, 
      0.006, -0.008, -0.004, 0.002, 0.004,
@@ -37,12 +38,8 @@ yhat = logistic_growth(xseq, popt[0], popt[1])
 xy = pd.DataFrame({"x": x, "y": y})
 xy.to_csv("data.csv", index = False)
 
-rands1 = np.random.randint(0, 40, 40)
-print(xy.iloc[rands1])
-
-for i in range(10):
+for i in range(1000):
     np.random.seed(i)
     indices = np.random.randint(0, 40, 40)
     xyi = xy.iloc[indices].sort_values("x")
     xyi.to_csv("samples/sample_" + str(i).zfill(4) + ".csv", index = False)
-
