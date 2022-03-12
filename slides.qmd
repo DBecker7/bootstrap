@@ -57,3 +57,29 @@ plt.show()
 ```
 
 Source: https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html
+
+
+# Logistic Growth Curve
+
+![](fit-eq2c-1.png)
+
+Source: [https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/](https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/)
+
+# Fitting the Curve
+
+Least squares, but no assumption of normality!
+
+$$
+K, r, s = \text{argmin}_{K, r, s}(y_i - f(x_i, K, r, s))^2
+$$
+
+- $y_i + \epsilon_i \in [0,1]$, which puts unusual constraints on $\epsilon_i$.  \newline  
+
+\quad
+
+- Error stucture may not even be additive! 
+
+# Activity: Grow the Sampling Distribution
+
+[https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx](https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx)
+
