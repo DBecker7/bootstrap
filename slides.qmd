@@ -6,8 +6,6 @@ format:
     theme: serif
     slide-number: true
     css: reveal.css
-  pdf:
-    toc: false
 ---
 
 # Recap (Zoom Poll)
@@ -26,7 +24,7 @@ Since you're reading the pdf version, it's hard to stop you from reading the ans
 I still recommend thinking about it for a minute or two.
 
 Okay, so the answer is 1: the standard deviation of the distribution of sample means.
-By knowing the behaiour of sample means, we can say something about the population mean.
+By knowing the behaivour of sample means, we can say something about the population mean.
 That is, we can do *inference*.
 :::
 
@@ -77,7 +75,7 @@ plt.xlabel("Collection Week")
 plt.show()
 ```
 
-Source: https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html
+Source: [https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html](https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html)
 
 :::{.notes}
 With your mind primed for thinking about sampling distributions, let's get into the lesson.
@@ -99,7 +97,7 @@ Source: [https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/](https://www
 In this context, a logistic growth model is just the assumed shape of the curve.
 Just like how the normal distribution is completely characterized by its mean and standard deviation, the growth curve is characterized by the following three values:
 
-- The asympote, which is the maximum value that the curve will reach. In our case, we know that this is 1.
+- The asymptote, which is the maximum value that the curve will reach. In our case, we know that this is 1.
 - The midpoint, which is the point at which the curve reaches half of the asymptote.
 - The scale, which can be seen as the slope of the curve at the midpoint.
 
@@ -116,9 +114,7 @@ $$
 
 - $y_i + \epsilon_i \in [0,1]$, which puts unusual constraints on $\epsilon_i$.  \newline  
 
-\quad
-
-- Error stucture may not even be additive! 
+- Error structure may not even be additive! 
 
 :::{.notes}
 Since we're not making any distributional assumptions, we cannot use maximum likelihood.
@@ -138,7 +134,7 @@ In class, I told you that the samples drawn in the linked notebook were obtained
 That was a lie.
 Instead, they were actually bootstrap samples!
 
-A (non-parametric) bootsrap sample is just a random sample from the sample that you already have.
+A (non-parametric) bootstrap sample is just a random sample from the sample that you already have.
 In practice, this means sampling $n$ integers from 1 to $n$, and then taking these indices from your dataset.
 Of course, this means that we're sampling with replacement - we will almost always have repeated values in our sample.
 
@@ -146,7 +142,10 @@ Just like with samples from the population, each time we do this we'll have a di
 Just like with samples from the population, the standard deviation of these means is an estimate for the standard error of the mean.
 
 Go ahead and run the example code a bunch of times. Notice how the sampling distribution of the scale parameter is clearly non-normal, and that there's clearly correlation between the two parameters that a univariate sampling distribution would not capture.
-Also notice how we can use the sampling distributions to calulcate confidence intervals, *even though we never made distributional assumptions*. 
+Also notice how we can use the sampling distributions to calculate confidence intervals, *even though we never made distributional assumptions*. 
+
+Aside: We are making some assumptions about the population, though.
+The bootstrap doesn't work when the population has infinite variance or when there are, say, outliers in the population that don't exist in our sample.
 :::
 
 # Why does bootstrapping work?
@@ -163,12 +162,27 @@ Also notice how we can use the sampling distributions to calulcate confidence in
 An estimate can be used in place of an unknown quantity.
 :::
 
+:::{.notes}
+It almost seems magical that we can estimate the sampling distribution without making assumptions about the population distribution.
+So why does this work?
+
+Let's think back to the sample mean.
+We intuitively know that it's a decent estimate of the population mean/
+Why is that?
+It's because we assume that the sample is *representative* of the population.
+
+Now think about confidence intervals for proportions. 
+When we need an estimate for the standard error, we don't have a separate estimate for the standard error.
+Instead, we simply *plug in* the estimate of the proportion.
+
+This is the plug-in principle: If we have a good estimate, we can use it in place of an unknown quantity.
+For example, if we know that the mean of one population should be twice as large as the mean of another population, we can plug-in the mean estimate for the first to estimate the second.
+:::
+
 
 # Bootstrap Plug-In
 
 **The sample is a plug-in estimate of the population.**
-
-<br>
 
 . . . 
 
@@ -176,24 +190,74 @@ Some things to note
 
 - Sample must be *representative*
 - Mean of bootstrap is (close to) mean of *sample*
-- Correct asumptions are powerful
+- Correct assumptions are powerful
 
+:::{.notes}
+For bootstrap, we're using the sample as a plug-in estimate of the population.
+This heavily relies on the assumption that we have a sample that is representative of the population.
+Assuming we have this assumption, we don't need to make assumptions about the parametric form of the population!
+
+It is important to note that the bootstrap doesn't improve on our current estimate.
+For the sample mean, the bootstrap distribution is centered on the sample mean, *NOT* the population mean.
+This is why it's useful for confidence intervals, but don't for a second think that it will get us more information about the population mean.
+:::
+
+# Calculating a Bootstrap CI
+
+1. Quantiles of the bootstrap sampling distribution
+
+2. Estimate the standard error from the bootstrap sampling distribution
+
+:::{.notes}
+Now that we have a way of estimating the sampling distribution, what do we do with it?
+There are two main approaches.
+
+First, we can just use the bootstrap sampling distribution as a plug-in estimate for the true sampling distribution.
+This means looking at all bootstrap samples and finding, say, the 2.5 and 97.5 percentiles.
+
+Second, we can use the standard deviation from the sampling distributions as the standard error and calculate our usual confidence interval as the sample mean plus and minus the standard error.
+If the bootstrap sampling distribution looks skewed we can make appropriate adjustments.
+
+There are other approaches out there, such as calculating the average width of parametric (normal) confidence intervals built from each re-sample or incorporating bias, but these can be explored in assignments or in your spare time.
+:::
 
 # Homework
 
 Show that the bootstrap method:
 
-<br>
+- Is not great for the median (and other quantiles).
+  - What does this mean for method 1?
 
-- Can be better than $t$ for moderate size samples
-
-- Is not great for median
-
-- Is ??? for skewed distributions (exponential).
-
-<br>
+- Is ??? for skewed distributions (e.g. exponential).
 
 See the code in the repo!
 
+:::{.notes}
+The bootstrap is not a magic bullet that works for everything.
+For the median, there is code in the repo to estimate the sampling distribution from a known (non-normal) population.
+You'll need to take a sample, the calculate a bootstrap confidence interval for that sample.
 
+Alternatively, we can look at confidence intervals for the mean, but when the population is heavily skewed.
 
+One of these will be part of a future assessment!
+:::
+
+# Next Lesson
+
+- Bootstrap for percentiles 
+  - I.e. why we usually use the standard error rather than 95% quartiles
+
+- Bootstrap t statistics
+  - Bootstrap is sometimes *better*?!?
+
+- Parametric and smoothed bootstrap
+
+:::{.notes}
+In the next lesson, we'll investigate exactly why the bootstrap method is imperfect fro quartiles.
+Spoilers: A plug in estimate for the whole sample isn't as important when the median is only calculated from the middle value or middle two values.
+
+We'll also look at the bootstrap method for hypothesis testing, in particular how the t-statistic is *better* because it incorporates the covariance between the mean and the standard deviation.
+However, it is also too small by a factor of $\sqrt{(n-1)/n}.
+
+In the lesson after that, we'll look at two extensions of bootstrapping, including when we assume something about the shape of the population and a hybrid between no assumptions and parametric assumptions.
+:::
