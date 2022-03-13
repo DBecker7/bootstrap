@@ -1,21 +1,34 @@
 ---
-title: "Bootstrap Method"
+title: "The Bootstrap Method"
 author: "Devan Becker"
 format: 
   revealjs:
     theme: serif
     slide-number: true
     css: reveal.css
+  pdf:
+    toc: false
 ---
 
 # Recap (Zoom Poll)
 
 What is the standard error?
 
-1. The sd of the distribution of all sample means
+1. The sd of the distribution of sample means
 2. The sd of the observed sample mean
 3. The sd of a sample
 
+:::{.notes}
+The concept we're going to cover today relates to sampling distributions.
+So we'll start with a simple question: what is the standard error?
+
+Since you're reading the pdf version, it's hard to stop you from reading the answer without thinking about it.
+I still recommend thinking about it for a minute or two.
+
+Okay, so the answer is 1: the standard deviation of the distribution of sample means.
+By knowing the behaiour of sample means, we can say something about the population mean.
+That is, we can do *inference*.
+:::
 
 # Recap (Zoom Poll)
 
@@ -29,7 +42,15 @@ Which of the following is the standard error?
 . . .
 
 :::{.callout-note}
+## Answer
+
 It all depends on *what assumptions we make*.
+:::
+
+:::{.notes}
+The problem with the statement is the word "*the*". 
+If we make different assumptions, we'll get a different definition for the standard error.
+There is no single standard error, it's all based on context.
 :::
 
 # Invasion of Omicron
@@ -58,12 +79,32 @@ plt.show()
 
 Source: https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html
 
+:::{.notes}
+With your mind primed for thinking about sampling distributions, let's get into the lesson.
+A colleague recently reached out to me to calculate a confidence interval for a logistic growth model.
+For this application, we're looking at the proportion of cases of COVID-19 that were known to be Omicron.
+Note that the denominator for this is all cases with known variants - we're not considering cases where we didn't know the variant.
+As with many infectious diseases, Omicron was seen in very low numbers for a long time before it eventually reached critical mass and took over the population.
+Once it had made up the majority of cases, it's growth slowed as it took the last few cases.
+The plot above shows weekly data, but my research has daily information which is much more variable.
+:::
 
 # Logistic Growth Curve
 
 ![](fit-eq2c-1.png)
 
 Source: [https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/](https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/)
+
+:::{.notes}
+In this context, a logistic growth model is just the assumed shape of the curve.
+Just like how the normal distribution is completely characterized by its mean and standard deviation, the growth curve is characterized by the following three values:
+
+- The asympote, which is the maximum value that the curve will reach. In our case, we know that this is 1.
+- The midpoint, which is the point at which the curve reaches half of the asymptote.
+- The scale, which can be seen as the slope of the curve at the midpoint.
+
+We don't need to go into too much detail for the model, other than to say that it is our assumption about the shape of the relationship and we haven't made any distributional assumptions.
+:::
 
 # Fitting the Curve
 
@@ -79,7 +120,80 @@ $$
 
 - Error stucture may not even be additive! 
 
+:::{.notes}
+Since we're not making any distributional assumptions, we cannot use maximum likelihood.
+We can still find the least squares between the line and the points, but we don't have the convenient calculus behind linear models.
+Instead, it's an optimization routine.
+
+We can't even say that the observations are just random error around the line - this assumes additivity, which is not one of our assumptions!
+There's a theme here: we've assumed the shape of the relationship and absolutely nothing else.
+:::
+
 # Activity: Grow the Sampling Distribution
 
 [https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx](https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx)
+
+:::{.notes}
+In class, I told you that the samples drawn in the linked notebook were obtained from a very complicated distribution and that's why you couldn't run it on your own computer.
+That was a lie.
+Instead, they were actually bootstrap samples!
+
+A (non-parametric) bootsrap sample is just a random sample from the sample that you already have.
+In practice, this means sampling $n$ integers from 1 to $n$, and then taking these indices from your dataset.
+Of course, this means that we're sampling with replacement - we will almost always have repeated values in our sample.
+
+Just like with samples from the population, each time we do this we'll have a different mean value.
+Just like with samples from the population, the standard deviation of these means is an estimate for the standard error of the mean.
+
+Go ahead and run the example code a bunch of times. Notice how the sampling distribution of the scale parameter is clearly non-normal, and that there's clearly correlation between the two parameters that a univariate sampling distribution would not capture.
+Also notice how we can use the sampling distributions to calulcate confidence intervals, *even though we never made distributional assumptions*. 
+:::
+
+# Why does bootstrapping work?
+
+- Why is the sample mean close to the population mean?
+
+- Why do we use $\hat p(1 - \hat p)/n$ in the binomial CI?
+
+. . .  
+
+:::{.callout-tip}
+## The Plug-In Principle
+
+An estimate can be used in place of an unknown quantity.
+:::
+
+
+# Bootstrap Plug-In
+
+**The sample is a plug-in estimate of the population.**
+
+<br>
+
+. . . 
+
+Some things to note
+
+- Sample must be *representative*
+- Mean of bootstrap is (close to) mean of *sample*
+- Correct asumptions are powerful
+
+
+# Homework
+
+Show that the bootstrap method:
+
+<br>
+
+- Can be better than $t$ for moderate size samples
+
+- Is not great for median
+
+- Is ??? for skewed distributions (exponential).
+
+<br>
+
+See the code in the repo!
+
+
 
