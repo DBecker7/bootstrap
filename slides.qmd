@@ -6,9 +6,12 @@ format:
     theme: serif
     slide-number: true
     css: reveal.css
+    echo: false
+  pdf: 
+    echo: true
 ---
 
-# Recap (Zoom Poll)
+# Recap
 
 What is the standard error?
 
@@ -28,7 +31,7 @@ By knowing the behaivour of sample means, we can say something about the populat
 That is, we can do *inference*.
 :::
 
-# Recap (Zoom Poll)
+# Recap
 
 Which of the following is the standard error?
 
@@ -50,6 +53,33 @@ The problem with the statement is the word "*the*".
 If we make different assumptions, we'll get a different definition for the standard error.
 There is no single standard error, it's all based on context.
 :::
+
+# Recap
+
+Which is a reasonable estimate of the population mean?
+
+1. The sample mean
+2. The sample median
+3. Halfway between $Q_1$ and $Q_3$
+4. All have their merits
+
+:::{.notes}
+Clearly, the correct answer is "All have their merits".
+The point of this question is to prime you for the next:
+:::
+
+# Question of the Day
+
+Which is a reasonable estimate of the population?
+
+1. The sample mean
+2. The sample mean and sample sd
+3. The sample
+
+:::{.notes}
+Todays lesson focuses on this idea: the sample can be seen as an estimate of the population, and can be used to construct a sampling distribution!
+:::
+
 
 # Invasion of Omicron
 
@@ -109,25 +139,31 @@ We don't need to go into too much detail for the model, other than to say that i
 Least squares, but no assumption of normality!
 
 $$
-K, r, s = \text{argmin}_{K, r, s}(y_i - f(x_i, K, r, s))^2
+\text{argmin}_{asym, mid, scale}(y_i - f(x_i, asym = 1, mid, scale))^2
 $$
 
-- $y_i + \epsilon_i \in [0,1]$, which puts unusual constraints on $\epsilon_i$.  \newline  
-
+- Constrained to $[0,1]$.
 - Error structure may not even be additive! 
 
 :::{.notes}
 Since we're not making any distributional assumptions, we cannot use maximum likelihood.
 We can still find the least squares between the line and the points, but we don't have the convenient calculus behind linear models.
 Instead, it's an optimization routine.
+Note that $asym$ is known to be one, so we keep that in this 
 
 We can't even say that the observations are just random error around the line - this assumes additivity, which is not one of our assumptions!
 There's a theme here: we've assumed the shape of the relationship and absolutely nothing else.
 :::
 
-# Activity: Grow the Sampling Distribution
+# Activity
 
-[https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx](https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx)
+**Grow the Sampling Distribution**
+
+Sampling from the population is difficult, so I upload some samples to GitHub: [Colab Notebook](https://colab.research.google.com/drive/1dIg3mql2w6KCEstAo9H2FK9ak-qIyPZx) (Google account required).
+
+<br>
+
+Put your sample estimates of $(scale, midpoint)$ in the chat!
 
 :::{.notes}
 In class, I told you that the samples drawn in the linked notebook were obtained from a very complicated distribution and that's why you couldn't run it on your own computer.
@@ -148,13 +184,54 @@ Aside: We are making some assumptions about the population, though.
 The bootstrap doesn't work when the population has infinite variance or when there are, say, outliers in the population that don't exist in our sample.
 :::
 
-# Why does bootstrapping work?
+
+# I Lied to You
+
+Those are actually **bootstrap samples!**
+
+```{python}
+#| echo: true
+#| eval: false
+#| code-line-numbers: "8-12"
+import pandas as pd
+import numpy as np
+xy = pd.read_csv("data.csv")
+
+for i in range(1000):
+    np.random.seed(i)
+
+    indices = np.random.randint(
+        low = 0, 
+        high = xy.shape[0], 
+        size = xy.shape[0])
+    xyi = xy.iloc[indices]
+
+    xyi.sort_values("x")
+    xyi.to_csv("samples/sample_" + str(i).zfill(4) + ".csv", 
+        index = False)
+
+```
+
+
+# Why does it work? 
+
+Consider these questions first:
 
 - Why is the sample mean close to the population mean?
 
+. . . 
+
+:::{.callout-tip}
+## Sampling design
+
+A good sample is *representative of the population*.
+:::
+
+. . . 
+
 - Why do we use $\hat p(1 - \hat p)/n$ in the binomial CI?
 
-. . .  
+. . . 
 
 :::{.callout-tip}
 ## The Plug-In Principle
@@ -186,6 +263,8 @@ For example, if we know that the mean of one population should be twice as large
 
 . . . 
 
+<br>
+
 Some things to note
 
 - Sample must be *representative*
@@ -202,11 +281,93 @@ For the sample mean, the bootstrap distribution is centered on the sample mean, 
 This is why it's useful for confidence intervals, but don't for a second think that it will get us more information about the population mean.
 :::
 
-# Calculating a Bootstrap CI
+# Calculating the CI
 
-1. Quantiles of the bootstrap sampling distribution
+::::{.columns}
 
-2. Estimate the standard error from the bootstrap sampling distribution
+::: {.column width="40%"}
+
+1. Quantiles
+
+0.025 and 0.975
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
+def logistic_growth(x, r, k):
+    y = 1/(1 + np.exp((k - x) * r))
+    return y
+
+xy = pd.read_csv("data.csv")
+
+n_boot = 5000
+r_tracker = np.zeros(n_boot)
+k_tracker = np.zeros(n_boot)
+
+for i in range(n_boot):
+    np.random.seed(i)
+
+    indices = np.random.randint(
+        low = 0, 
+        high = xy.shape[0], 
+        size = xy.shape[0])
+    xyi = xy.iloc[indices]
+    popt, pcov = curve_fit(logistic_growth, 
+        xyi.x.to_numpy(), xyi.y.to_numpy(), 
+        p0 = [0.3, 15])
+    r_tracker[i] = popt[0]
+    k_tracker[i] = popt[1]
+
+rtiles = np.quantile(r_tracker, [0.025, 0.975])
+
+plt.figure(figsize = (4,3))
+
+plt.hist(r_tracker, bins = 50)
+plt.vlines(rtiles, 0, 600, colors = "red")
+plt.title("Sampling Distr. for scale")
+plt.xlabel("Bootstrapped value of scale")
+plt.ylabel("Count")
+plt.text(rtiles[0], 200, "2.5%", 
+    ha = "right", va = "center", size = 7,
+    bbox = dict(boxstyle="larrow,pad=0.3", fc = "white", 
+        ec = "b", lw = 2))
+plt.text(rtiles[1], 200, "2.5%", 
+    ha = "left", va = "center", size = 7,
+    bbox = dict(boxstyle="rarrow,pad=0.3", fc = "white", 
+        ec = "b", lw = 2))
+plt.show()
+```
+
+:::
+
+::: {.column width="40%"}
+2. Standard error
+
+$\hat k \pm z_\alpha s_{k^*}$
+
+```{python}
+#| fig-height: 3in
+k_mean = np.mean(k_tracker)
+k_sd = np.sqrt(np.var(k_tracker))
+
+plt.figure(figsize = (4,3))
+plt.hist(k_tracker, bins = 60)
+plt.vlines([k_mean, k_mean + k_sd], ymin = 0, ymax = 250, color = "red")
+plt.text(k_mean + k_sd/2, 75, "1sd", 
+    ha = "center", va = "center", size = 10,
+    bbox = dict(boxstyle="rarrow,pad=0.3", fc = "white", 
+        ec = "b", lw = 2))
+plt.title("Sampling Distr. for midpoint")
+plt.xlabel("Bootstrapped value of midpoint")
+plt.ylabel("Count")
+plt.show()
+```
+
+:::
+::::
 
 :::{.notes}
 Now that we have a way of estimating the sampling distribution, what do we do with it?
@@ -226,9 +387,9 @@ There are other approaches out there, such as calculating the average width of p
 Show that the bootstrap method:
 
 - Is not great for the median (and other quantiles).
-  - What does this mean for method 1?
+  - What does this mean for quantiles method?
 
-- Is ??? for skewed distributions (e.g. exponential).
+- Is (good/bad?) for skewed distributions (e.g. exponential).
 
 See the code in the repo!
 
@@ -244,20 +405,14 @@ One of these will be part of a future assessment!
 
 # Next Lesson
 
-- Bootstrap for percentiles 
-  - I.e. why we usually use the standard error rather than 95% quartiles
-
 - Bootstrap t statistics
   - Bootstrap is sometimes *better*?!?
 
 - Parametric and smoothed bootstrap
 
 :::{.notes}
-In the next lesson, we'll investigate exactly why the bootstrap method is imperfect fro quartiles.
-Spoilers: A plug in estimate for the whole sample isn't as important when the median is only calculated from the middle value or middle two values.
-
-We'll also look at the bootstrap method for hypothesis testing, in particular how the t-statistic is *better* because it incorporates the covariance between the mean and the standard deviation.
-However, it is also too small by a factor of $\sqrt{(n-1)/n}.
+In the next lesson, we'll look at the bootstrap method for hypothesis testing, in particular how the bootstrap t-statistic can be *better* because it incorporates the covariance between the mean and the standard deviation.
+However, it is also too small by a factor of $\sqrt{(n-1)/n}$.
 
 In the lesson after that, we'll look at two extensions of bootstrapping, including when we assume something about the shape of the population and a hybrid between no assumptions and parametric assumptions.
 :::
