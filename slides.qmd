@@ -346,7 +346,7 @@ plt.show()
 ::: {.column width="40%"}
 2. Standard error
 
-$\hat k \pm z_\alpha s_{k^*}$
+$\hat k \pm t_{\alpha/2} s_{k^*}$
 
 ```{python}
 #| fig-height: 3in
@@ -407,6 +407,8 @@ One of these will be part of a future assessment!
 
 - Bootstrap t statistics
   - Bootstrap is sometimes *better*?!?
+
+- Bias-corrected and accelerated bootstraps
 
 - Parametric and smoothed bootstrap
 
