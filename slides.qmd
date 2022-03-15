@@ -20,104 +20,10 @@ format:
         echo: true
 ---
 
-# Recap
-
-What is the standard error?
-
-1. The sd of the distribution of sample means
-2. The sd of the observed sample mean
-3. The sd of a sample
-
-. . . 
-
-:::{.callout-note}
-## Answer
-
-Option 1.
-:::
-
-:::{.notes}
-The concept we're going to cover today relates to sampling distributions.
-So we'll start with a simple question: what is the standard error?
-
-Since you're reading the pdf version, it's hard to stop you from reading the answer without thinking about it.
-I still recommend thinking about it for a minute or two.
-
-Okay, so the answer is 1: the standard deviation of the distribution of sample means.
-By knowing the behaivour of sample means, we can say something about the population mean.
-That is, we can do *inference*.
-:::
-
-# Recap
-
-Which of the following is the standard error?
-
-1. $\sigma/\sqrt{n}$
-2. $s/\sqrt{n}$
-3. $s/\sqrt{n-1}$
-3. None of the above
-
-. . .
-
-:::{.callout-note}
-## Answer
-
-It all depends on *what assumptions we make*.
-:::
-
-:::{.notes}
-The problem with the statement is the word "*the*". 
-If we make different assumptions, we'll get a different definition for the standard error.
-There is no single standard error, it's all based on context.
-:::
-
-# Recap
-
-Which is a reasonable estimate of the population mean?
-
-1. The sample mean
-2. The sample median
-3. Halfway between $Q_1$ and $Q_3$
-4. All have their merits
-
-. . . 
-
-:::{.callout-note}
-## Answer
-
-There's more than one way to estmate the centre!
-:::
-
-:::{.notes}
-Clearly, the correct answer is "All have their merits".
-The point of this question is to prime you for the next:
-:::
-
-# Question of the Day
-
-Which is a reasonable estimate of the population?
-
-1. The sample mean
-2. The sample mean and sample sd
-3. The sample
-
-:::{.notes}
-Todays lesson focuses on this idea: the sample can be seen as an estimate of the population, and can be used to construct a sampling distribution!
-:::
-
-
-
-:::{.notes}
-With your mind primed for thinking about sampling distributions, let's get into the lesson.
-A colleague recently reached out to me to calculate a confidence interval for a logistic growth model.
-For this application, we're looking at the proportion of cases of COVID-19 that were known to be Omicron.
-Note that the denominator for this is all cases with known variants - we're not considering cases where we didn't know the variant.
-As with many infectious diseases, Omicron was seen in very low numbers for a long time before it eventually reached critical mass and took over the population.
-Once it had made up the majority of cases, it's growth slowed as it took the last few cases.
-The plot above shows weekly data, but my research has daily information which is much more variable.
-:::
 
 # Invasion of Omicron
+
+How quickly did omicron become dominant?
 
 ```{python}
 #| echo: false
@@ -130,12 +36,13 @@ omicron = pd.read_csv("data.csv")
 plt.plot(omicron.date, omicron.prop, "o")
 plt.xlabel("Date")
 plt.ylabel("Proportion")
+plt.title("Proportion of omicron in known variants")
 plt.show()
 ```
 
 :::{.notes}
-This plot is closer to the data I actually have.
-I have the proportion of the variant for most days, and so I simulated some data that has similar features to mine.
+In my work, I was tasked with estimating not just the speed at which omicron became the dominant variant of SARS-CoV-2 in Canada, but to also provide a confidence interval around this value.
+This plot shows something similar to the data I actually have - the "proportion" is the proportion of cases with Omicron out of all cases with a known variant.
 :::
 
 # Logistic Growth Curve
@@ -163,11 +70,12 @@ $$
 (\widehat{scale}, \widehat{mid}) = \hat\theta = \text{argmin}_{\theta}(y_i - f(x_i | \theta))^2
 $$
 
+. . . 
 
 ```{python}
 #| echo: true
 #| eval: true
-#| code-line-numbers: "3|3,10-14"
+#| code-line-numbers: "5-8|3|3,10-14"
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
@@ -193,9 +101,132 @@ Note that we can't even say that the observations are just random error around t
 There's a theme here: we've assumed the shape of the relationship and absolutely nothing else.
 :::
 
-# Bootstrapping
 
-Re-fit with random indices (keep x and y together).
+# Challenge: Variance?
+
+Point estimates are easy!
+
+```{python}
+#| echo: false
+
+xseq = np.linspace(0, 30, 31)
+yseq = logistic_growth(xseq, theta_hat[0], theta_hat[1])
+
+plt.plot(omicron.date, omicron.prop, "o")
+plt.plot(xseq, yseq, color = "black")
+plt.xlabel("Date")
+plt.ylabel("Proportion")
+plt.title("Proportion of omicron in known variants")
+plt.show()
+```
+
+
+:::{.notes}
+There are no distribution assumptions!
+How can we find an estimate for the variance around this curve?
+
+Let's build up an intuition.
+:::
+
+# Recap
+
+What is the standard error?
+
+1. The sd of the distribution of sample means
+2. The sd of the observed sample mean
+3. The sd of a sample
+
+. . . 
+
+:::{.callout-note}
+## Answer
+
+Option 1 is the (simplified) definition.
+:::
+
+:::{.notes}
+The concept we're going to cover today relates to sampling distributions.
+So we'll start with a simple question: what is the standard error?
+
+Since you're reading the pdf version, it's hard to stop you from reading the answer without thinking about it.
+I still recommend thinking about it for a minute or two.
+
+Okay, so the answer is 1: the standard deviation of the distribution of sample means.
+By knowing the behaivour of sample means, we can say something about the population mean.
+That is, we can do *inference*.
+:::
+
+# Recap
+
+Which is a reasonable estimate of the population mean?
+
+1. The sample mean
+2. The sample median
+3. Halfway between $Q_1$ and $Q_3$
+4. All have their merits and pitfalls
+
+. . . 
+
+:::{.callout-note}
+## Answer
+
+There's more than one way to estmate the centre!
+:::
+
+:::{.notes}
+Clearly, the correct answer is "All have their merits".
+The point of this question is to prime you for the next:
+:::
+
+
+# Question of the Day
+
+Which is a reasonable estimate of the population?
+
+1. The sample mean
+2. The sample mean and sample sd
+3. The sample
+
+. . . 
+
+:::{.callout-note}
+## Answer
+
+If our sample is representative, then it can be used as an estimate!
+:::
+
+:::{.notes}
+Today's lesson focuses on this idea: the sample can be seen as an estimate of the population, and can be used to construct a sampling distribution!
+:::
+
+
+# Bootstrapping: Learning Outcomes
+
+
+<br>
+
+**If** the sample is a **plug-in estimate** of the population...
+
+<br>
+
+. . . 
+
+then we can build the **sampling distribution** from nothing but the **sample**!
+
+
+:::{.notes}
+The name "bootstrap" comes from the idea of "pulling yourself up by your bootstraps", which refers to the act of pulling yourself out of poverty using only what you have an no other supports.
+The phrase was initially used sarcastically to highlight how patently ridiculous the idea was, but some people use it to simple mean "succeed using only what you have."
+
+The main purpose of bootstrapping is using the sample in place of the population.
+This allows us to estimate properties of the sampling distribution without making parametric assumptions about the population.
+It's actually kind of magical.
+:::
+
+
+# Bootstrapping in Action
+
+Re-fit with random indices (keeping $(x, y)$ pairs together).
 
 ```{python}
 #| echo: true
@@ -220,7 +251,7 @@ for i in range(n_boot):
 ```
 
 :::{.notes}
-A (non-parametric) bootstrap sample is just a random sample from the sample that you already have.
+A (non-parametric) bootstrap sample is just a simple random sample from the sample that you already have.
 In practice, this means sampling $n$ integers from 1 to $n$, and then taking these indices from your dataset.
 Of course, this means that we're sampling with replacement - we will almost always have repeated values in our sample.
 
@@ -304,73 +335,6 @@ As we saw in the previous slide, there is covariance between the parameters.
 This KDE estimate shows that this is not a linear correlation: there is a slight curve to this relationship, and the most common bootstrap estimates are not in the center of the distribution.
 :::
 
-# Why does it work? 
-
-Consider these questions first:
-
-- Why is the sample mean close to the population mean?
-
-. . . 
-
-:::{.callout-tip}
-## Sampling design
-
-A good sample is *representative of the population*.
-:::
-
-. . . 
-
-- Why do we use $\hat p(1 - \hat p)/n$ in the binomial CI?
-
-. . . 
-
-:::{.callout-tip}
-## The Plug-In Principle
-
-An estimate can be used in place of an unknown quantity.
-:::
-
-:::{.notes}
-It almost seems magical that we can estimate the sampling distribution without making assumptions about the population distribution.
-So why does this work?
-
-Let's think back to the sample mean.
-We intuitively know that it's a decent estimate of the population mean/
-Why is that?
-It's because we assume that the sample is *representative* of the population.
-
-Now think about confidence intervals for proportions. 
-When we need an estimate for the standard error, we don't have a separate estimate for the standard error.
-Instead, we simply *plug in* the estimate of the proportion.
-
-This is the plug-in principle: If we have a good estimate, we can use it in place of an unknown quantity.
-For example, if we know that the mean of one population should be twice as large as the mean of another population, we can plug-in the mean estimate for the first to estimate the second.
-:::
-
-
-# Bootstrap Plug-In
-
-**The sample is a plug-in estimate of the population.**
-
-. . . 
-
-<br>
-
-Some things to note
-
-- Sample must be *representative* of population
-- Mean of bootstrap is (close to) mean of *sample*, not themena of the population
-- Correct assumptions about population can be powerful
-
-:::{.notes}
-For bootstrap, we're using the sample as a plug-in estimate of the population.
-This heavily relies on the assumption that we have a sample that is representative of the population.
-Assuming we have this assumption, we don't need to make assumptions about the parametric form of the population!
-
-It is important to note that the bootstrap doesn't improve on our current estimate.
-For the sample mean, the bootstrap distribution is centered on the sample mean, *NOT* the population mean.
-This is why it's useful for confidence intervals, but don't for a second think that it will get us more information about the population mean.
-:::
 
 # Calculating a CI
 
@@ -453,33 +417,86 @@ There are other approaches out there, such as calculating the average width of p
 :::
 
 
-# Try it Yourself!
 
-:::{.callout-important icon=false}
-## The Median (and other Quantiles) 
+# The Bootstrap Principle
 
-Bootstrap emulates population, but median uses 1 or 2 points. 
+**The sample is a plug-in estimate of the population.**
+
+. . . 
+
+
+:::{.callout-warning}
+## The sample must be *representative* of the population.
+
+Bootstrapping doesn't fix biased sampling or small sample sizes.
 :::
 
-:::{.callout-important icon=false}
-## Small samples
+. . . 
 
-Bootstrap requires at least moderate-sized samples.
+:::{.callout-warning}
+## Centered near the mean of the *sample*, not the mean of the *population*.
+
+Bootstrapping does not improve the point estimate.
+:::
+
+. . . 
+
+:::{.callout-warning}
+## Correct assumptions about the population can be powerful.
+
+Today's lesson has been on *non-parametric* bootstrapping.
+:::
+
+. . . 
+
+:::{.callout-warning}
+## Samples must be independent!
+
+No time series models!
+:::
+
+
+:::{.notes}
+For bootstrap, we're using the sample as a plug-in estimate of the population.
+This heavily relies on the assumption that we have a sample that is representative of the population.
+Assuming we have this assumption, we don't need to make assumptions about the parametric form of the population!
+
+It is important to note that the bootstrap doesn't improve on our current estimate.
+For the sample mean, the bootstrap distribution is centered on the sample mean, *NOT* the population mean.
+This is why it's useful for confidence intervals, but don't for a second think that it will get us more information about the population mean.
+:::
+
+
+# Discussion
+
+<br>
+
+Is the bootstrap good for medians?
+
+# Try it Yourself!
+
+
+1. Sample from a population.
+2. Calculate the statistic
+3. Calculate the bootstrap version of that statistic
+
+Try it for:
+
+:::{.callout-important icon=false}
+## Quantiles (incl. median, 0.025, and 0.975)
 :::
 
 :::{.callout-tip icon=false}
-## The t-statistic
+## The $t$-statistic
 
-Bootstrap estimates the joint distribution of mean and sd, and is more robust to deviations from normality!
+Bootstrap is robust to deviations from normal populations!
 :::
 
 :::{.callout-warning icon=false}
-## Skewed Distributions?
+## Mean of skewed distributions
 
 What's your intuition? (This may be an assignment question...)
 :::
-
-See the code in the repo!
 
 :::{.notes}
 The bootstrap is not a magic bullet that works for everything.
@@ -493,20 +510,19 @@ One of these will be part of a future assessment!
 
 # Summary
 
-- Bootstrapping is simply **re-sampling** from your sample
-    - **Plug-in Principle** for sampling distribuions
+<br>
 
+- Bootstrapping is simply **re-sampling** from your sample (**Plug-in Principle**)
+
+<br>
 
 - Bootstrapping works well for **complicated or unknown/unassumed sampling distributions**
-    - Covariance between parameters
 
+<br>
 
-- Bootstrap confidence intervals can be great!
-    - ... but **don't bootstrap blindly**!
+- Bootstrap confidence intervals can be great, but **don't bootstrap blindly**!
 
 # Next Steps
-
-**Next Lessons:**
 
 - Bias-corrected and accelerated bootstraps
 - Parametric and smoothed bootstrap
