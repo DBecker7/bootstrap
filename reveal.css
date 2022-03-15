@@ -8,3 +8,7 @@ section p {
     margin-top: auto !important;
     margin-bottom: auto !important;
 }
+
+.reveal h1, .reveal h2, .reveal h3 {
+    font-size: 1.4em !important;
+}
