@@ -2,7 +2,6 @@
 .ipynb_checkpoints*
 
 # Quarto stuff
-*.html
 slides_files
 
 # Aux data (see slides.qmd)
