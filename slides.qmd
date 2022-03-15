@@ -1,11 +1,18 @@
 ---
 title: "The Bootstrap Method"
-author: "Devan Becker"
+author: |
+    | 
+    | Dr. Devan Becker
+    |
+    | The University of Western Ontario
+    | 
+    | March 15, 2022 🎂
 execute:
     cache: true
 format: 
     revealjs:
-        theme: serif
+        theme: 
+            - serif
         slide-number: true
         css: reveal.css
         echo: false
@@ -20,6 +27,14 @@ What is the standard error?
 1. The sd of the distribution of sample means
 2. The sd of the observed sample mean
 3. The sd of a sample
+
+. . . 
+
+:::{.callout-note}
+## Answer
+
+Option 1.
+:::
 
 :::{.notes}
 The concept we're going to cover today relates to sampling distributions.
@@ -65,6 +80,14 @@ Which is a reasonable estimate of the population mean?
 3. Halfway between $Q_1$ and $Q_3$
 4. All have their merits
 
+. . . 
+
+:::{.callout-note}
+## Answer
+
+There's more than one way to estmate the centre!
+:::
+
 :::{.notes}
 Clearly, the correct answer is "All have their merits".
 The point of this question is to prime you for the next:
@@ -83,31 +106,6 @@ Todays lesson focuses on this idea: the sample can be seen as an estimate of the
 :::
 
 
-# Invasion of Omicron
-
-```{python}
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-
-# Only need to run once to download the data
-#voc = pd.read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19-epiSummary-variants.csv")
-#voc.columns = ["Grouping", "Identifier", "Lineage", "Proportion", "Collection_Week"]
-#voc.to_csv("voc.csv")
-voc = pd.read_csv("voc.csv")
-
-any_omicron = voc[voc.Identifier == "Omicron"]
-any_omicron = any_omicron.loc[any_omicron.Collection_Week >= "2021-10"]
-any_omicron['Collection_Week'] = pd.to_datetime(any_omicron['Collection_Week'], infer_datetime_format=True)
-all_omicron = any_omicron.groupby("Collection_Week", as_index = False).Proportion.sum()
-
-all_omicron.plot("Collection_Week", "Proportion", kind = "scatter")
-plt.ylabel("Proportion of Cases of Omicron")
-plt.xlabel("Collection Week")
-plt.show()
-```
-
-Source: [https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html](https://health-infobase.canada.ca/covid-19/epidemiological-summary-covid-19-cases.html)
 
 :::{.notes}
 With your mind primed for thinking about sampling distributions, let's get into the lesson.
@@ -119,11 +117,32 @@ Once it had made up the majority of cases, it's growth slowed as it took the las
 The plot above shows weekly data, but my research has daily information which is much more variable.
 :::
 
+# Invasion of Omicron
+
+```{python}
+#| echo: false
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 15})
+
+omicron = pd.read_csv("data.csv")
+plt.plot(omicron.date, omicron.prop, "o")
+plt.xlabel("Date")
+plt.ylabel("Proportion")
+plt.show()
+```
+
+:::{.notes}
+This plot is closer to the data I actually have.
+I have the proportion of the variant for most days, and so I simulated some data that has similar features to mine.
+:::
+
 # Logistic Growth Curve
 
 ![](fit-eq2c-1.png)
 
-Source: [https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/](https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/)
+<sub><sub><sub>Source: [https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/](https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/)</sub></sub></sub>
 
 :::{.notes}
 In this context, a logistic growth model is just the assumed shape of the curve.
@@ -158,7 +177,7 @@ def logistic_growth(x, r, k): # assume asymptote is 1
     y = 1/(1 + np.exp((k - x) * r))
     return y
 
-theta, covs = curve_fit(f = logistic_growth, 
+theta_hat, covs = curve_fit(f = logistic_growth, 
     xdata = omicron.date, 
     ydata = omicron.prop, 
     p0 = [0.3, 15])
@@ -168,9 +187,9 @@ theta, covs = curve_fit(f = logistic_growth,
 Since we're not making any distributional assumptions, we cannot use maximum likelihood.
 We can still find the least squares between the line and the points, but we don't have the convenient calculus behind linear models.
 Instead, it's an optimization routine.
-Note that $asym$ is known to be one, so we keep that in this 
+Note that $asym$ is known to be one, so we only need to consider the slope and the scale.
 
-We can't even say that the observations are just random error around the line - this assumes additivity, which is not one of our assumptions!
+Note that we can't even say that the observations are just random error around the line - this assumes additivity, which is not one of our assumptions!
 There's a theme here: we've assumed the shape of the relationship and absolutely nothing else.
 :::
 
@@ -208,9 +227,6 @@ Of course, this means that we're sampling with replacement - we will almost alwa
 Just like with samples from the population, each time we do this we'll have a different mean value.
 Just like with samples from the population, the standard deviation of these means is an estimate for the standard error of the mean.
 
-Go ahead and run the example code a bunch of times. Notice how the sampling distribution of the scale parameter is clearly non-normal, and that there's clearly correlation between the two parameters that a univariate sampling distribution would not capture.
-Also notice how we can use the sampling distributions to calculate confidence intervals, *even though we never made distributional assumptions*. 
-
 Aside: We are making some assumptions about the population, though.
 The bootstrap doesn't work when the population has infinite variance or when there are, say, outliers in the population that don't exist in our sample.
 :::
@@ -219,34 +235,55 @@ The bootstrap doesn't work when the population has infinite variance or when the
 
 ```{python}
 xseq = np.linspace(0, 30, 31)
-yseq = logistic_growth(xseq, 0.3, 15)
+yseq = logistic_growth(xseq, theta_hat[0], theta_hat[1])
 
 figure, axis = plt.subplots(2, 2, dpi = 100)
 figure.tight_layout(h_pad=2)
 
 axis[0, 0].plot(omicron.date, omicron.prop, "o", 
     xseq, yseq, "-k")
-axis[0, 0].set_title("Data")
+axis[0, 0].set_title("Data with all resampled curves")
 
 for i in range(midpoint_tracker.shape[0]):
     yi = logistic_growth(xseq, 
         scale_tracker[i], midpoint_tracker[i])
-    axis[0, 0].plot(xseq, yi, color = "grey", alpha = 0.01)
+    axis[0, 0].plot(xseq, yi, color = "grey", alpha = 0.01, lw = 0.1)
 
-kr = np.polyfit(scale_tracker, midpoint_tracker, deg = 1)
-kseq = np.array([np.min(midpoint_tracker), np.max(midpoint_tracker)])
-rseq = np.array([np.min(scale_tracker), np.max(scale_tracker)])
-axis[0, 1].plot(scale_tracker, midpoint_tracker, "o")
-axis[0, 1].set_title("Scatterplot of scale versus midpoint")
-axis[0, 1].plot(rseq, kr[1] + kr[0]*rseq, "-r")
+#kr = np.polyfit(scale_tracker, midpoint_tracker, deg = 1)
+#kseq = np.array([np.min(midpoint_tracker), np.max(midpoint_tracker)])
+#rseq = np.array([np.min(scale_tracker), np.max(scale_tracker)])
+#axis[0, 1].plot(scale_tracker, midpoint_tracker, "o")
+#axis[0, 1].set_title("Scatterplot of scale versus midpoint")
+#axis[0, 1].plot(rseq, kr[1] + kr[0]*rseq, "-r")
+
+axis[0, 1].set_visible(False)
 
 axis[1, 0].hist(scale_tracker, bins = 70)
 axis[1, 0].set_title("Histogram of scale")
+axis[1, 0].vlines(theta_hat[0], 0, 400, color = "red")
 
 axis[1, 1].hist(midpoint_tracker, bins = 70)
 axis[1, 1].set_title("Histogram of midpoint")
+axis[1, 1].vlines(theta_hat[1], 0, 200, color = "red")
 plt.show()
 ```
+
+:::{.notes}
+Here are the results of the bootstrap sampling.
+
+The first plot shows all of curves that were estimated by resamples as thin grey lines.
+Since there are 5,000 of them, they appear as one single line.
+Notice how the line fit to the original data isn't straight through the middle of this cloud of lines.
+The two outliers around x = 8 seem to have a large effect on our parameter estimates!
+Note that we don't have a rigorous definition of influence in this model, but the bootstrap has revealed this to us!
+
+The second plot shows the covariance between the two parameters, with the red line indicating a linear model fit.
+Obviously, when we change the slope we also must change the midpoint to make the line still fit the data.
+What's nice is that the bootstrap method has no problem picking up on this, and we didn't need to make any parametric assumptions!
+
+The third and fourth plots show the estimated sampling distributions along with a red line indicating the estimate from the original sample.
+The scale clearly has a non-normal, skewed distribution for this sample, whereas the midpoint does seem somewhat normal looking.
+:::
 
 # Covariance between parameters
 
@@ -261,6 +298,11 @@ plt.xlabel("Scale")
 plt.ylabel("Midpoint")
 plt.show()
 ```
+
+:::{.notes}
+As we saw in the previous slide, there is covariance between the parameters.
+This KDE estimate shows that this is not a linear correlation: there is a slight curve to this relationship, and the most common bootstrap estimates are not in the center of the distribution.
+:::
 
 # Why does it work? 
 
@@ -317,7 +359,7 @@ For example, if we know that the mean of one population should be twice as large
 Some things to note
 
 - Sample must be *representative* of population
-- Mean of bootstrap is (close to) mean of *sample*, not the population
+- Mean of bootstrap is (close to) mean of *sample*, not themena of the population
 - Correct assumptions about population can be powerful
 
 :::{.notes}
@@ -330,15 +372,15 @@ For the sample mean, the bootstrap distribution is centered on the sample mean, 
 This is why it's useful for confidence intervals, but don't for a second think that it will get us more information about the population mean.
 :::
 
-# Calculating the CI
+# Calculating a CI
 
 ::::{.columns}
 
-::: {.column width="38%"}
+::: {.column width="47%"}
 
 1. Quantiles
 
-0.025 and 0.975
+0.025 and 0.975 $\phantom{t_\alpha}$
 
 ```{python}
 
@@ -362,21 +404,20 @@ plt.text(rtiles[1], 200, "2.5%",
 plt.show()
 ```
 
-Bootstrap estimates the sampling distr.
+Estimates sampling distr.
 
 :::
 
-::: {.column width="11%"}
+::: {.column width="5%"}
 
 :::
 
-::: {.column width="38%"}
+::: {.column width="47%"}
 2. Normal (or $t$) CI
 
 $\hat k \pm t_{\alpha/2} s_{k^*}$
 
 ```{python}
-#| fig-height: 3in
 k_mean = np.mean(midpoint_tracker)
 k_sd = np.sqrt(np.var(midpoint_tracker))
 
@@ -393,7 +434,7 @@ plt.ylabel("Count")
 plt.show()
 ```
 
-Bootstrap estimates the standard error.
+Estimates standard error.
 
 :::
 ::::
@@ -411,12 +452,13 @@ If the bootstrap sampling distribution looks skewed we can make appropriate adju
 There are other approaches out there, such as calculating the average width of parametric (normal) confidence intervals built from each re-sample or incorporating bias, but these can be explored in assignments or in your spare time.
 :::
 
-# Homework
+
+# Try it Yourself!
 
 :::{.callout-important icon=false}
-## The Median (and other Quantiles)
+## The Median (and other Quantiles) 
 
-Bootstrap emulates population, but median uses 1 or 2 points. This has implications for the "Quantiles" CI estimate.
+Bootstrap emulates population, but median uses 1 or 2 points. 
 :::
 
 :::{.callout-important icon=false}
@@ -467,7 +509,6 @@ One of these will be part of a future assessment!
 **Next Lessons:**
 
 - Bias-corrected and accelerated bootstraps
-
 - Parametric and smoothed bootstrap
 - Permutation tests
 
