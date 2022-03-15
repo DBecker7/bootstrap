@@ -308,10 +308,6 @@ Notice how the line fit to the original data isn't straight through the middle o
 The two outliers around x = 8 seem to have a large effect on our parameter estimates!
 Note that we don't have a rigorous definition of influence in this model, but the bootstrap has revealed this to us!
 
-The second plot shows the covariance between the two parameters, with the red line indicating a linear model fit.
-Obviously, when we change the slope we also must change the midpoint to make the line still fit the data.
-What's nice is that the bootstrap method has no problem picking up on this, and we didn't need to make any parametric assumptions!
-
 The third and fourth plots show the estimated sampling distributions along with a red line indicating the estimate from the original sample.
 The scale clearly has a non-normal, skewed distribution for this sample, whereas the midpoint does seem somewhat normal looking.
 :::
