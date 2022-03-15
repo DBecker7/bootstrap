@@ -18,6 +18,8 @@ format:
         echo: false
     pdf: 
         echo: true
+        fig-height: 4
+        fig-width: 5.5
 ---
 
 
@@ -430,7 +432,7 @@ Bootstrapping doesn't fix biased sampling or small sample sizes.
 . . . 
 
 :::{.callout-warning}
-## Centered near the mean of the *sample*, not the mean of the *population*.
+## Centered near the mean of the sample not the mean of the population.
 
 Bootstrapping does not improve the point estimate.
 :::
@@ -479,7 +481,9 @@ Is the bootstrap good for medians?
 Try it for:
 
 :::{.callout-important icon=false}
-## Quantiles (incl. median, 0.025, and 0.975)
+## Quantiles
+
+Median, 0.025, 0.975
 :::
 
 :::{.callout-tip icon=false}
