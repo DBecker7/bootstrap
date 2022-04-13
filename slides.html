@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
   <meta charset="utf-8">
-  <meta name="generator" content="quarto-99.9.9">
+  <meta name="generator" content="quarto-0.9.133">
   <title>The Bootstrap Method</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -9,9 +9,6 @@
   <link rel="stylesheet" href="slides_files/libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="slides_files/libs/revealjs/dist/reveal.css">
   <style>
-    .reveal .sourceCode {  /* see #7635 */
-      overflow: visible;
-    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -90,7 +87,7 @@
   <script src="slides_files/libs/quarto-html/tippy.umd.min.js"></script>
   <link href="slides_files/libs/quarto-html/tippy.css" rel="stylesheet">
   <link href="slides_files/libs/quarto-html/quarto-html.min.css" rel="stylesheet">
-  <link href="slides_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+  <link id="quarto-text-highlighting-styles" href="slides_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
   <link href="slides_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="slides_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="slides_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -305,12 +302,6 @@
     .reveal .slide:not(.center) {
       height: 100%;
     }
-    .reveal #title-slide.center,
-    .reveal .title-slide.center,
-    .reveal .controls .navigate-left .controls-arrow,
-    .reveal .controls .navigate-right .controls-arrow {
-      margin-top: -15px;
-    }
     .reveal .slide.scrollable {
       overflow-y: auto;
     }
@@ -397,9 +388,9 @@
   <p class="author"></p><p><br>
 Dr.&nbsp;Devan Becker<br>
 <br>
-The University of Western Ontario<br>
+The University of Guelph<br>
 <br>
-March 15, 2022 🎂</p><p></p>
+April 13, 2022</p><p></p>
 </section>
 
 <section id="invasion-of-omicron" class="title-slide slide level1 center">
@@ -410,24 +401,12 @@ March 15, 2022 🎂</p><p></p>
 <p><img data-src="slides_files/figure-revealjs/cell-2-output-1.png" width="830" height="463"></p>
 </div>
 </div>
-<aside class="notes">
-<p>In my work, I was tasked with estimating not just the speed at which omicron became the dominant variant of SARS-CoV-2 in Canada, but to also provide a confidence interval around this value. This plot shows something similar to the data I actually have - the “proportion” is the proportion of cases with Omicron out of all cases with a known variant.</p>
-</aside>
 </section>
 
 <section id="logistic-growth-curve" class="title-slide slide level1 center">
 <h1>Logistic Growth Curve</h1>
 
 <img data-src="fit-eq2c-1.png" class="r-stretch"><p><sub><sub><sub>Source: <a href="https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/">https://www.tjmahr.com/anatomy-of-a-logistic-growth-curve/</a></sub></sub></sub></p>
-<aside class="notes">
-<p>In this context, a logistic growth model is just the assumed shape of the curve. Just like how the normal distribution is completely characterized by its mean and standard deviation, the growth curve is characterized by the following three values:</p>
-<ul>
-<li>The asymptote, which is the maximum value that the curve will reach. In our case, we know that this is 1.</li>
-<li>The midpoint, which is the point at which the curve reaches half of the asymptote.</li>
-<li>The scale, which can be seen as the slope of the curve at the midpoint.</li>
-</ul>
-<p>We don’t need to go into too much detail for the model, other than to say that it is our assumption about the shape of the relationship and we haven’t made any distributional assumptions.</p>
-</aside>
 </section>
 
 <section id="fitting-the-curve" class="title-slide slide level1 center">
@@ -452,10 +431,6 @@ March 15, 2022 🎂</p><p></p>
 <span id="cb1-12"><a href="#cb1-12"></a>    ydata <span class="op">=</span> omicron.prop, </span>
 <span id="cb1-13"><a href="#cb1-13"></a>    p0 <span class="op">=</span> [<span class="fl">0.3</span>, <span class="dv">15</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<aside class="notes">
-<p>Since we’re not making any distributional assumptions, we cannot use maximum likelihood. We can still find the least squares between the line and the points, but we don’t have the convenient calculus behind linear models. Instead, it’s an optimization routine. Note that <span class="math inline">\(asym\)</span> is known to be one, so we only need to consider the slope and the scale.</p>
-<p>Note that we can’t even say that the observations are just random error around the line - this assumes additivity, which is not one of our assumptions! There’s a theme here: we’ve assumed the shape of the relationship and absolutely nothing else.</p>
-</aside>
 </div>
 </section>
 
@@ -467,10 +442,6 @@ March 15, 2022 🎂</p><p></p>
 <p><img data-src="slides_files/figure-revealjs/cell-4-output-1.png" width="830" height="463"></p>
 </div>
 </div>
-<aside class="notes">
-<p>There are no distribution assumptions! How can we find an estimate for the variance around this curve?</p>
-<p>Let’s build up an intuition.</p>
-</aside>
 </section>
 
 <section id="recap" class="title-slide slide level1 center">
@@ -495,11 +466,6 @@ March 15, 2022 🎂</p><p></p>
 </div>
 </div>
 </div>
-<aside class="notes">
-<p>The concept we’re going to cover today relates to sampling distributions. So we’ll start with a simple question: what is the standard error?</p>
-<p>Since you’re reading the pdf version, it’s hard to stop you from reading the answer without thinking about it. I still recommend thinking about it for a minute or two.</p>
-<p>Okay, so the answer is 1: the standard deviation of the distribution of sample means. By knowing the behaivour of sample means, we can say something about the population mean. That is, we can do <em>inference</em>.</p>
-</aside>
 </div>
 </section>
 
@@ -526,9 +492,6 @@ March 15, 2022 🎂</p><p></p>
 </div>
 </div>
 </div>
-<aside class="notes">
-<p>Clearly, the correct answer is “All have their merits”. The point of this question is to prime you for the next:</p>
-</aside>
 </div>
 </section>
 
@@ -554,9 +517,6 @@ March 15, 2022 🎂</p><p></p>
 </div>
 </div>
 </div>
-<aside class="notes">
-<p>Today’s lesson focuses on this idea: the sample can be seen as an estimate of the population, and can be used to construct a sampling distribution!</p>
-</aside>
 </div>
 </section>
 
@@ -567,10 +527,6 @@ March 15, 2022 🎂</p><p></p>
 <p><br></p>
 <div class="fragment">
 <p>then we can build the <strong>sampling distribution</strong> from nothing but the <strong>sample</strong>!</p>
-<aside class="notes">
-<p>The name “bootstrap” comes from the idea of “pulling yourself up by your bootstraps”, which refers to the act of pulling yourself out of poverty using only what you have an no other supports. The phrase was initially used sarcastically to highlight how patently ridiculous the idea was, but some people use it to simple mean “succeed using only what you have.”</p>
-<p>The main purpose of bootstrapping is using the sample in place of the population. This allows us to estimate properties of the sampling distribution without making parametric assumptions about the population. It’s actually kind of magical.</p>
-</aside>
 </div>
 </section>
 
@@ -595,22 +551,12 @@ March 15, 2022 🎂</p><p></p>
 <span id="cb2-15"><a href="#cb2-15"></a>    scale_tracker[i] <span class="op">=</span> theta[<span class="dv">0</span>]</span>
 <span id="cb2-16"><a href="#cb2-16"></a>    midpoint_tracker[i] <span class="op">=</span> theta[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<aside class="notes">
-<p>A (non-parametric) bootstrap sample is just a simple random sample from the sample that you already have. In practice, this means sampling <span class="math inline">\(n\)</span> integers from 1 to <span class="math inline">\(n\)</span>, and then taking these indices from your dataset. Of course, this means that we’re sampling with replacement - we will almost always have repeated values in our sample.</p>
-<p>Just like with samples from the population, each time we do this we’ll have a different mean value. Just like with samples from the population, the standard deviation of these means is an estimate for the standard error of the mean.</p>
-<p>Aside: We are making some assumptions about the population, though. The bootstrap doesn’t work when the population has infinite variance or when there are, say, outliers in the population that don’t exist in our sample.</p>
-</aside>
 </section>
 
 <section id="results" class="title-slide slide level1 center">
 <h1>Results</h1>
 
-<img data-src="slides_files/figure-revealjs/cell-6-output-1.png" class="r-stretch"><aside class="notes">
-<p>Here are the results of the bootstrap sampling.</p>
-<p>The first plot shows all of curves that were estimated by resamples as thin grey lines. Since there are 5,000 of them, they appear as one single line. Notice how the line fit to the original data isn’t straight through the middle of this cloud of lines. The two outliers around x = 8 seem to have a large effect on our parameter estimates! Note that we don’t have a rigorous definition of influence in this model, but the bootstrap has revealed this to us!</p>
-<p>The third and fourth plots show the estimated sampling distributions along with a red line indicating the estimate from the original sample. The scale clearly has a non-normal, skewed distribution for this sample, whereas the midpoint does seem somewhat normal looking.</p>
-</aside>
-</section>
+<img data-src="slides_files/figure-revealjs/cell-6-output-1.png" class="r-stretch"></section>
 
 <section id="covariance-between-parameters" class="title-slide slide level1 center">
 <h1>Covariance between parameters</h1>
@@ -619,9 +565,6 @@ March 15, 2022 🎂</p><p></p>
 <p><img data-src="slides_files/figure-revealjs/cell-7-output-1.png" width="842" height="436"></p>
 </div>
 </div>
-<aside class="notes">
-<p>As we saw in the previous slide, there is covariance between the parameters. This KDE estimate shows that this is not a linear correlation: there is a slight curve to this relationship, and the most common bootstrap estimates are not in the center of the distribution.</p>
-</aside>
 </section>
 
 <section id="calculating-a-ci" class="title-slide slide level1 center">
@@ -647,18 +590,12 @@ March 15, 2022 🎂</p><p></p>
 <p><span class="math inline">\(\hat k \pm t_{\alpha/2} s_{k^*}\)</span></p>
 <div class="cell" data-execution_count="9">
 <div class="cell-output-display">
-<p><img data-src="slides_files/figure-revealjs/cell-9-output-1.png" width="410" height="318"></p>
+<p><img data-src="slides_files/figure-revealjs/cell-9-output-1.png" width="409" height="318"></p>
 </div>
 </div>
 <p>Estimates standard error.</p>
 </div>
 </div>
-<aside class="notes">
-<p>Now that we have a way of estimating the sampling distribution, what do we do with it? There are two main approaches.</p>
-<p>First, we can just use the bootstrap sampling distribution as a plug-in estimate for the true sampling distribution. This means looking at all bootstrap samples and finding, say, the 2.5 and 97.5 percentiles.</p>
-<p>Second, we can use the standard deviation from the sampling distributions as the standard error and calculate our usual confidence interval as the sample mean plus and minus the standard error. If the bootstrap sampling distribution looks skewed we can make appropriate adjustments.</p>
-<p>There are other approaches out there, such as calculating the average width of parametric (normal) confidence intervals built from each re-sample or incorporating bias, but these can be explored in assignments or in your spare time.</p>
-</aside>
 </section>
 
 <section id="the-bootstrap-principle" class="title-slide slide level1 center">
@@ -723,10 +660,6 @@ March 15, 2022 🎂</p><p></p>
 </div>
 </div>
 </div>
-<aside class="notes">
-<p>For bootstrap, we’re using the sample as a plug-in estimate of the population. This heavily relies on the assumption that we have a sample that is representative of the population. Assuming we have this assumption, we don’t need to make assumptions about the parametric form of the population!</p>
-<p>It is important to note that the bootstrap doesn’t improve on our current estimate. For the sample mean, the bootstrap distribution is centered on the sample mean, <em>NOT</em> the population mean. This is why it’s useful for confidence intervals, but don’t for a second think that it will get us more information about the population mean.</p>
-</aside>
 </div>
 </section>
 
@@ -774,11 +707,6 @@ March 15, 2022 🎂</p><p></p>
 </div>
 </div>
 </div>
-<aside class="notes">
-<p>The bootstrap is not a magic bullet that works for everything. For the median, there is code in the repo to estimate the sampling distribution from a known (non-normal) population. You’ll need to take a sample, the calculate a bootstrap confidence interval for that sample.</p>
-<p>Alternatively, we can look at confidence intervals for the mean, but when the population is heavily skewed.</p>
-<p>One of these will be part of a future assessment!</p>
-</aside>
 </section>
 
 <section id="summary" class="title-slide slide level1 center">
@@ -809,10 +737,6 @@ March 15, 2022 🎂</p><p></p>
 <ul>
 <li>Bootstrap for time series models</li>
 </ul>
-<aside class="notes">
-<p>In the next lesson, we’ll look at the bootstrap method for hypothesis testing, in particular how the bootstrap t-statistic can be <em>better</em> because it incorporates the covariance between the mean and the standard deviation. However, it is also too small by a factor of <span class="math inline">\(\sqrt{(n-1)/n}\)</span>.</p>
-<p>In the lesson after that, we’ll look at two extensions of bootstrapping, including when we assume something about the shape of the population and a hybrid between no assumptions and parametric assumptions.</p>
-</aside>
 <div class="footer footer-default">
 
 </div>
